@@ -1,0 +1,87 @@
+
+import React from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useTrip } from '@/contexts/TripContext';
+import { Users, Map, Calendar, MapPin } from 'lucide-react';
+
+export const TripList = () => {
+  const { trips, selectTrip, currentTrip } = useTrip();
+
+  if (!trips.length) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <div className="bg-muted/50 rounded-full p-6 mb-4">
+          <Map className="h-12 w-12 text-travel-primary" />
+        </div>
+        <h3 className="text-lg font-medium mb-2">No trips yet</h3>
+        <p className="text-muted-foreground mb-4">
+          Create a new trip or join one using an invite code
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {trips.map((trip) => (
+        <Card
+          key={trip.id}
+          className={`overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-md ${
+            currentTrip?.id === trip.id ? 'ring-2 ring-travel-primary' : ''
+          }`}
+          onClick={() => selectTrip(trip.id)}
+        >
+          <div className="h-2 bg-travel-gradient" />
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start">
+              <CardTitle>{trip.name}</CardTitle>
+              <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'}>
+                {trip.status === 'planning' ? 'Planning' : 
+                 trip.status === 'voting' ? 'Voting' : 'Confirmed'}
+              </Badge>
+            </div>
+            <CardDescription className="line-clamp-2">
+              {trip.description || 'No description provided'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pb-3">
+            <div className="flex space-x-4 text-sm">
+              <div className="flex items-center space-x-1">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span>{trip.members.length} members</span>
+              </div>
+              
+              {trip.selectedDestination && (
+                <div className="flex items-center space-x-1">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="line-clamp-1">{trip.selectedDestination.name}</span>
+                </div>
+              )}
+              
+              {trip.selectedDate && (
+                <div className="flex items-center space-x-1">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>{new Date(trip.selectedDate).toLocaleDateString()}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button 
+              variant="ghost" 
+              className="w-full hover:bg-travel-primary hover:text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                selectTrip(trip.id);
+              }}
+            >
+              {currentTrip?.id === trip.id ? 'Currently Selected' : 'View Details'}
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+};
