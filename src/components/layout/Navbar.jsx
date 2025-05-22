@@ -13,7 +13,7 @@ export const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-2xl font-bold text-travel-primary">
-            <span className="bg-clip-text text-transparent bg-travel-gradient">Trip Trio</span>
+            <span className="bg-clip-text text-transparent bg-travel-gradient">TripSync</span>
           </h1>
         </div>
         

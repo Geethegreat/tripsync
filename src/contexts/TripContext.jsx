@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './AuthContext';
@@ -24,13 +23,13 @@ export const TripProvider = ({ children }) => {
   // Load trips from localStorage on mount
   useEffect(() => {
     if (user) {
-      const storedTrips = localStorage.getItem('trip_trio_trips');
+      const storedTrips = localStorage.getItem('tripsync_trips');
       if (storedTrips) {
         const parsedTrips = JSON.parse(storedTrips);
         setTrips(parsedTrips);
         
         // If there's a current trip stored, set it
-        const currentTripId = localStorage.getItem('trip_trio_current_trip');
+        const currentTripId = localStorage.getItem('tripsync_current_trip');
         if (currentTripId) {
           const matchingTrip = parsedTrips.find(trip => trip.id === currentTripId);
           if (matchingTrip) {
@@ -47,17 +46,18 @@ export const TripProvider = ({ children }) => {
   // Save trips to localStorage whenever they change
   useEffect(() => {
     if (trips.length > 0) {
-      localStorage.setItem('trip_trio_trips', JSON.stringify(trips));
+      localStorage.setItem('tripsync_trips', JSON.stringify(trips));
     }
     
     // Save current trip id if there is one
     if (currentTrip) {
-      localStorage.setItem('trip_trio_current_trip', currentTrip.id);
+      localStorage.setItem('tripsync_current_trip', currentTrip.id);
     } else {
-      localStorage.removeItem('trip_trio_current_trip');
+      localStorage.removeItem('tripsync_current_trip');
     }
   }, [trips, currentTrip]);
 
+  
   const initializeDemoData = () => {
     if (!user) return;
     
@@ -232,6 +232,7 @@ export const TripProvider = ({ children }) => {
     return true;
   };
 
+  
   const assignRole = (tripId, userId, role) => {
     const tripIndex = trips.findIndex(t => t.id === tripId);
     if (tripIndex === -1) return;

@@ -36,7 +36,7 @@ const AppContent = () => {
             <div className="md:col-span-2 text-center md:text-left">
               <div className="mb-6">
                 <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-travel-gradient">
-                  Trip Trio
+                  TripSync
                 </h1>
                 <p className="text-lg text-gray-600">
                   Plan your trips together. Vote on destinations, assign roles, and collaborate with your friends.

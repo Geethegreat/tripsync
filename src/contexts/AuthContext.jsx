@@ -20,13 +20,40 @@ export const AuthProvider = ({ children }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check for stored user on mount
-    const storedUser = localStorage.getItem('trip_trio_user');
+    // Migrate data from old localStorage keys if they exist
+    migrateLocalStorageKeys();
+    
+    // Check for stored user on mount using new key
+    const storedUser = localStorage.getItem('tripsync_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
+  
+  // Helper function to migrate localStorage data from old keys to new keys
+  const migrateLocalStorageKeys = () => {
+    // Migrate user data
+    const oldUserData = localStorage.getItem('trip_trio_user');
+    if (oldUserData) {
+      localStorage.setItem('tripsync_user', oldUserData);
+      localStorage.removeItem('trip_trio_user');
+    }
+    
+    // Migrate trips data
+    const oldTripsData = localStorage.getItem('trip_trio_trips');
+    if (oldTripsData) {
+      localStorage.setItem('tripsync_trips', oldTripsData);
+      localStorage.removeItem('trip_trio_trips');
+    }
+    
+    // Migrate current trip data
+    const oldCurrentTripData = localStorage.getItem('trip_trio_current_trip');
+    if (oldCurrentTripData) {
+      localStorage.setItem('tripsync_current_trip', oldCurrentTripData);
+      localStorage.removeItem('trip_trio_current_trip');
+    }
+  };
 
   const login = async (email, password) => {
     try {
@@ -47,10 +74,10 @@ export const AuthProvider = ({ children }) => {
         name: email.split('@')[0],
       };
       
-      localStorage.setItem('trip_trio_user', JSON.stringify(mockUser));
+      localStorage.setItem('tripsync_user', JSON.stringify(mockUser));
       setUser(mockUser);
       toast({
-        title: "Welcome back!",
+        title: "Welcome to TripSync!",
         description: "You've successfully logged in.",
       });
     } catch (error) {
@@ -87,11 +114,11 @@ export const AuthProvider = ({ children }) => {
         name,
       };
       
-      localStorage.setItem('trip_trio_user', JSON.stringify(mockUser));
+      localStorage.setItem('tripsync_user', JSON.stringify(mockUser));
       setUser(mockUser);
       toast({
         title: "Account created!",
-        description: "Welcome to Trip Trio.",
+        description: "Welcome to TripSync!",
       });
     } catch (error) {
       toast({
@@ -106,7 +133,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('trip_trio_user');
+    localStorage.removeItem('tripsync_user');
     setUser(null);
     toast({
       title: "Logged out",
