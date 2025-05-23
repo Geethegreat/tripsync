@@ -53,6 +53,7 @@ export const PollingSection = ({ trip }) => {
                     selected={date}
                     onSelect={setDate}
                     initialFocus
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>

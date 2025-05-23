@@ -1,6 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from './AuthContext';
 
 const TripContext = createContext();
 
@@ -12,342 +12,356 @@ export const useTrip = () => {
   return context;
 };
 
-// This is a mock implementation for demo purposes
-// In a real app, this would connect to a backend API
+// Mock trip data for demo purposes
+// In a real app, this would use an actual backend service or API
 export const TripProvider = ({ children }) => {
   const [trips, setTrips] = useState([]);
   const [currentTrip, setCurrentTrip] = useState(null);
-  const { user } = useAuth();
   const { toast } = useToast();
 
-  // Load trips from localStorage on mount
   useEffect(() => {
-    if (user) {
-      const storedTrips = localStorage.getItem('tripsync_trips');
-      if (storedTrips) {
-        const parsedTrips = JSON.parse(storedTrips);
-        setTrips(parsedTrips);
-        
-        // If there's a current trip stored, set it
-        const currentTripId = localStorage.getItem('tripsync_current_trip');
-        if (currentTripId) {
-          const matchingTrip = parsedTrips.find(trip => trip.id === currentTripId);
-          if (matchingTrip) {
-            setCurrentTrip(matchingTrip);
-          }
-        }
-      } else {
-        // If no trips, initialize with demo data
-        initializeDemoData();
-      }
-    }
-  }, [user]);
-
-  // Save trips to localStorage whenever they change
-  useEffect(() => {
-    if (trips.length > 0) {
-      localStorage.setItem('tripsync_trips', JSON.stringify(trips));
-    }
-    
-    // Save current trip id if there is one
-    if (currentTrip) {
-      localStorage.setItem('tripsync_current_trip', currentTrip.id);
+    // Load trips from localStorage on mount
+    const storedTrips = localStorage.getItem('tripsync_trips');
+    if (storedTrips) {
+      setTrips(JSON.parse(storedTrips));
     } else {
-      localStorage.removeItem('tripsync_current_trip');
+      // Set some demo trips if none exist
+      const demoTrips = generateDemoTrips();
+      setTrips(demoTrips);
+      localStorage.setItem('tripsync_trips', JSON.stringify(demoTrips));
     }
-  }, [trips, currentTrip]);
 
-  
-  const initializeDemoData = () => {
-    if (!user) return;
-    
-    const mockTrips = [
-      {
-        id: '1',
-        name: 'Summer Beach Vacation',
-        description: 'A relaxing beach getaway with friends',
-        status: 'planning',
-        inviteCode: 'BEACH23',
-        members: [
-          { id: user.id, name: user.name, avatar: user.avatar, isAdmin: true }
-        ],
-        dateOptions: [
-          { id: 'date1', value: '2025-07-15', votes: [] },
-          { id: 'date2', value: '2025-08-01', votes: [] }
-        ],
-        destinationOptions: [
-          { id: 'dest1', value: 'Miami Beach', votes: [] },
-          { id: 'dest2', value: 'Cancun', votes: [] }
-        ],
-        selectedDate: null,
-        selectedDestination: null,
-        selectedTransport: null,
-        packingList: [
-          { 
-            id: 'item1', 
-            name: 'Sunscreen',
-            category: 'essentials',
-            addedBy: user.id,
-            isPinned: true,
-            isEssential: true,
-            checked: false
-          },
-          { 
-            id: 'item2', 
-            name: 'Swimsuit',
-            category: 'clothing',
-            addedBy: user.id,
-            isPinned: false,
-            isEssential: false,
-            checked: false  
-          }
-        ]
-      },
-      {
-        id: '2',
-        name: 'Mountain Retreat',
-        description: 'Hiking and relaxing in the mountains',
-        status: 'voting',
-        inviteCode: 'MOUNT45',
-        members: [
-          { id: user.id, name: user.name, avatar: user.avatar, isAdmin: true },
-          { 
-            id: 'user2', 
-            name: 'Alex Johnson', 
-            role: 'navigator',
-            isAdmin: false
-          }
-        ],
-        dateOptions: [
-          { id: 'date3', value: '2025-09-10', votes: [] },
-          { id: 'date4', value: '2025-10-01', votes: [] }
-        ],
-        destinationOptions: [
-          { id: 'dest3', value: 'Colorado Rockies', votes: [] },
-          { id: 'dest4', value: 'Swiss Alps', votes: [] }
-        ],
-        selectedDate: null,
-        selectedDestination: null,
-        selectedTransport: null,
-        packingList: [
-          { 
-            id: 'item3', 
-            name: 'Hiking Boots',
-            category: 'clothing',
-            addedBy: user.id,
-            isPinned: false,
-            isEssential: true,
-            checked: false
-          }
-        ]
-      }
-    ];
-    
-    setTrips(mockTrips);
-    setCurrentTrip(mockTrips[0]);
+    // Load current trip if exists
+    const storedCurrentTrip = localStorage.getItem('tripsync_current_trip');
+    if (storedCurrentTrip) {
+      const tripId = JSON.parse(storedCurrentTrip);
+      const tripsArray = storedTrips ? JSON.parse(storedTrips) : generateDemoTrips();
+      const trip = tripsArray.find(t => t.id === tripId);
+      if (trip) setCurrentTrip(trip);
+    }
+  }, []);
+
+  // Generate random invite code (for demo)
+  const generateInviteCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
   };
 
+  // Create a new trip
+  const createTrip = (name, description) => {
+    const user = JSON.parse(localStorage.getItem('tripsync_user') || '{}');
+    
+    const newTrip = {
+      id: `trip-${Date.now()}`,
+      name,
+      description,
+      status: 'planning',
+      createdAt: new Date().toISOString(),
+      inviteCode: generateInviteCode(),
+      dateOptions: [],
+      destinationOptions: [],
+      transportOptions: [],
+      members: [
+        {
+          id: user.id,
+          name: user.name,
+          avatar: user.avatar,
+          isAdmin: true,
+          role: null
+        }
+      ],
+      packingList: []
+    };
+
+    const updatedTrips = [...trips, newTrip];
+    setTrips(updatedTrips);
+    setCurrentTrip(newTrip);
+    
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+    localStorage.setItem('tripsync_current_trip', JSON.stringify(newTrip.id));
+    
+    toast({
+      title: "Trip created!",
+      description: `Your trip "${name}" has been created.`,
+    });
+
+    return newTrip;
+  };
+
+  // Join a trip with invite code
+  const joinTrip = (code) => {
+    const foundTrip = trips.find(trip => 
+      trip.inviteCode.toLowerCase() === code.toLowerCase()
+    );
+
+    if (!foundTrip) {
+      toast({
+        title: "Invalid code",
+        description: "Could not find a trip with that invitation code.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    const user = JSON.parse(localStorage.getItem('tripsync_user') || '{}');
+    
+    // Check if user is already a member
+    if (foundTrip.members.some(member => member.id === user.id)) {
+      selectTrip(foundTrip.id);
+      toast({
+        title: "Trip selected",
+        description: `You're already a member of "${foundTrip.name}".`,
+      });
+      return true;
+    }
+
+    // Add user to trip members
+    const updatedTrip = {
+      ...foundTrip,
+      members: [
+        ...foundTrip.members,
+        {
+          id: user.id,
+          name: user.name,
+          avatar: user.avatar,
+          isAdmin: false,
+          role: null
+        }
+      ]
+    };
+
+    const updatedTrips = trips.map(trip => 
+      trip.id === updatedTrip.id ? updatedTrip : trip
+    );
+
+    setTrips(updatedTrips);
+    setCurrentTrip(updatedTrip);
+    
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+    localStorage.setItem('tripsync_current_trip', JSON.stringify(updatedTrip.id));
+    
+    toast({
+      title: "Trip joined!",
+      description: `You've successfully joined "${updatedTrip.name}".`,
+    });
+
+    return true;
+  };
+
+  // Select a trip to view/edit
   const selectTrip = (tripId) => {
     const trip = trips.find(t => t.id === tripId);
     if (trip) {
       setCurrentTrip(trip);
+      localStorage.setItem('tripsync_current_trip', JSON.stringify(tripId));
     }
   };
 
-  const createTrip = (name, description) => {
-    if (!user) return;
-    
-    const newTrip = {
-      id: Math.random().toString(36).substr(2, 9),
-      name,
-      description,
-      status: 'planning',
-      inviteCode: generateInviteCode(),
-      members: [
-        { id: user.id, name: user.name, avatar: user.avatar, isAdmin: true }
-      ],
-      dateOptions: [],
-      destinationOptions: [],
-      selectedDate: null,
-      selectedDestination: null,
-      selectedTransport: null,
-      packingList: []
-    };
-    
-    setTrips([newTrip, ...trips]);
-    setCurrentTrip(newTrip);
-    
-    toast({
-      title: "Trip created",
-      description: `Your trip "${name}" has been created.`,
-    });
-    
-    return newTrip;
-  };
+  // Add packing item
+  const addPackingItem = (tripId, item) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
 
-  const joinTrip = (inviteCode) => {
-    if (!user) return false;
-    
-    const tripIndex = trips.findIndex(t => t.inviteCode === inviteCode.toUpperCase());
-    
-    if (tripIndex === -1) {
-      toast({
-        title: "Invalid invite code",
-        description: "Please check the code and try again.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    // Check if user is already a member
-    if (trips[tripIndex].members.some(m => m.id === user.id)) {
-      toast({
-        title: "Already a member",
-        description: "You are already a member of this trip.",
-        variant: "destructive",
-      });
-      return false;
-    }
-    
-    // Add user to trip's members
-    const updatedTrips = [...trips];
-    updatedTrips[tripIndex] = {
-      ...updatedTrips[tripIndex],
-      members: [...updatedTrips[tripIndex].members, { 
-        id: user.id, 
-        name: user.name, 
-        avatar: user.avatar,
-        isAdmin: false 
-      }]
+    const newItem = {
+      ...item,
+      id: `item-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      isChecked: false,
     };
-    
-    setTrips(updatedTrips);
-    setCurrentTrip(updatedTrips[tripIndex]);
-    
-    toast({
-      title: "Trip joined",
-      description: `You've joined "${updatedTrips[tripIndex].name}".`,
-    });
-    
-    return true;
-  };
 
-  
-  const assignRole = (tripId, userId, role) => {
-    const tripIndex = trips.findIndex(t => t.id === tripId);
-    if (tripIndex === -1) return;
-    
-    const memberIndex = trips[tripIndex].members.findIndex(m => m.id === userId);
-    if (memberIndex === -1) return;
-    
-    const updatedTrips = [...trips];
-    const updatedMembers = [...updatedTrips[tripIndex].members];
-    
-    updatedMembers[memberIndex] = {
-      ...updatedMembers[memberIndex],
-      role
+    const updatedTrip = {
+      ...trip,
+      packingList: [
+        ...trip.packingList || [],
+        newItem
+      ]
     };
-    
-    updatedTrips[tripIndex] = {
-      ...updatedTrips[tripIndex],
-      members: updatedMembers
-    };
-    
+
+    const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
     setTrips(updatedTrips);
     
-    // Update currentTrip if this trip is the current one
     if (currentTrip && currentTrip.id === tripId) {
-      setCurrentTrip(updatedTrips[tripIndex]);
+      setCurrentTrip(updatedTrip);
     }
     
-    toast({
-      title: "Role assigned",
-      description: "The role has been assigned successfully.",
-    });
-    
-    return true;
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
   };
 
-  const addPackingItem = (tripId, newItem) => {
-    const tripIndex = trips.findIndex(t => t.id === tripId);
-    if (tripIndex === -1) return false;
-    
-    const itemWithId = {
-      ...newItem,
-      id: Math.random().toString(36).substr(2, 9),
-      checked: false
-    };
-    
-    const updatedTrips = [...trips];
-    
-    if (!updatedTrips[tripIndex].packingList) {
-      updatedTrips[tripIndex].packingList = [];
-    }
-    
-    updatedTrips[tripIndex] = {
-      ...updatedTrips[tripIndex],
-      packingList: [...updatedTrips[tripIndex].packingList, itemWithId]
-    };
-    
-    setTrips(updatedTrips);
-    
-    // Update currentTrip if this trip is the current one
-    if (currentTrip && currentTrip.id === tripId) {
-      setCurrentTrip(updatedTrips[tripIndex]);
-    }
-    
-    return true;
-  };
-
+  // Toggle pin status of a packing item
   const togglePinItem = (tripId, itemId) => {
-    const tripIndex = trips.findIndex(t => t.id === tripId);
-    if (tripIndex === -1) return false;
-    
-    const updatedTrips = [...trips];
-    const packingList = [...updatedTrips[tripIndex].packingList];
-    
-    const itemIndex = packingList.findIndex(item => item.id === itemId);
-    if (itemIndex === -1) return false;
-    
-    packingList[itemIndex] = {
-      ...packingList[itemIndex],
-      isPinned: !packingList[itemIndex].isPinned
-    };
-    
-    updatedTrips[tripIndex] = {
-      ...updatedTrips[tripIndex],
-      packingList
-    };
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip || !trip.packingList) return;
+
+    const updatedPackingList = trip.packingList.map(item => 
+      item.id === itemId ? { ...item, isPinned: !item.isPinned } : item
+    );
+
+    const updatedTrip = { ...trip, packingList: updatedPackingList };
+    const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
     
     setTrips(updatedTrips);
-    
-    // Update currentTrip if this trip is the current one
     if (currentTrip && currentTrip.id === tripId) {
-      setCurrentTrip(updatedTrips[tripIndex]);
+      setCurrentTrip(updatedTrip);
     }
     
-    return true;
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
   };
 
-  // Helper function to generate random invite code
-  const generateInviteCode = () => {
-    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  // Assign role to a trip member
+  const assignRole = (tripId, userId, role) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+
+    const updatedMembers = trip.members.map(member => 
+      member.id === userId ? { ...member, role } : member
+    );
+
+    const updatedTrip = { ...trip, members: updatedMembers };
+    const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+    
+    setTrips(updatedTrips);
+    if (currentTrip && currentTrip.id === tripId) {
+      setCurrentTrip(updatedTrip);
+    }
+    
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+  };
+
+  // Generate demo trips
+  const generateDemoTrips = () => {
+    const user = JSON.parse(localStorage.getItem('tripsync_user') || '{}');
+    if (!user.id) return [];
+
+    return [
+      {
+        id: 'trip-1',
+        name: 'Summer Beach Vacation',
+        description: 'Two-week getaway to the coast',
+        status: 'planning',
+        createdAt: '2025-03-15T12:00:00Z',
+        inviteCode: 'BEACH23',
+        dateOptions: [
+          { id: 'date-1', value: 'July 15-30, 2025', votes: [{userId: user.id}] },
+          { id: 'date-2', value: 'August 1-15, 2025', votes: [] }
+        ],
+        destinationOptions: [
+          { id: 'dest-1', value: 'Malibu, CA', votes: [{userId: user.id}] },
+          { id: 'dest-2', value: 'San Diego, CA', votes: [] }
+        ],
+        transportOptions: [
+          { id: 'trans-1', value: 'Car', votes: [{userId: user.id}] }
+        ],
+        members: [
+          {
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar,
+            isAdmin: true,
+            role: 'organizer'
+          },
+          {
+            id: 'user-2',
+            name: 'Alex Johnson',
+            avatar: null,
+            isAdmin: false,
+            role: 'photographer'
+          }
+        ],
+        packingList: [
+          { 
+            id: 'pack-1', 
+            name: 'Sunscreen', 
+            category: 'essentials', 
+            addedBy: user.id, 
+            isPinned: true, 
+            isChecked: false,
+            isEssential: true,
+            createdAt: '2025-03-16T10:00:00Z'
+          },
+          { 
+            id: 'pack-2', 
+            name: 'Beach towel', 
+            category: 'essentials', 
+            addedBy: user.id, 
+            isPinned: false, 
+            isChecked: false,
+            isEssential: true,
+            createdAt: '2025-03-16T10:05:00Z'
+          },
+          { 
+            id: 'pack-3', 
+            name: 'Swimsuit', 
+            category: 'clothing', 
+            addedBy: user.id, 
+            isPinned: true, 
+            isChecked: true,
+            isEssential: false,
+            createdAt: '2025-03-16T10:10:00Z'
+          }
+        ],
+        selectedDestination: null,
+        selectedDate: null
+      },
+      {
+        id: 'trip-2',
+        name: 'Mountain Hiking Trip',
+        description: 'Weekend hiking adventure',
+        status: 'confirmed',
+        createdAt: '2025-02-20T15:30:00Z',
+        inviteCode: 'MOUNT45',
+        dateOptions: [],
+        destinationOptions: [],
+        transportOptions: [],
+        members: [
+          {
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar,
+            isAdmin: false,
+            role: 'navigator'
+          },
+          {
+            id: 'user-3',
+            name: 'Sam Wilson',
+            avatar: null,
+            isAdmin: true,
+            role: 'organizer'
+          }
+        ],
+        packingList: [
+          { 
+            id: 'pack-4', 
+            name: 'Hiking boots', 
+            category: 'essentials', 
+            addedBy: 'user-3', 
+            isPinned: true, 
+            isChecked: false,
+            isEssential: true,
+            createdAt: '2025-02-21T09:00:00Z'
+          }
+        ],
+        selectedDestination: { name: 'Yosemite National Park' },
+        selectedDate: '2025-06-10T00:00:00Z'
+      }
+    ];
   };
 
   return (
     <TripContext.Provider value={{
       trips,
       currentTrip,
-      selectTrip,
       createTrip,
       joinTrip,
-      assignRole,
+      selectTrip,
       addPackingItem,
-      togglePinItem
+      togglePinItem,
+      assignRole
     }}>
       {children}
     </TripContext.Provider>
   );
 };
-
-export { TripContext };

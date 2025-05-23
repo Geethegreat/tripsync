@@ -27,7 +27,7 @@ export const PackingList = ({ trip }) => {
     
     if (itemName.trim() === '') return;
     
-    const user = JSON.parse(localStorage.getItem('trip_trio_user') || '{}');
+    const user = JSON.parse(localStorage.getItem('tripsync_user') || '{}');
     
     addPackingItem(trip.id, {
       name: itemName,
