@@ -35,12 +35,12 @@
  
     --radius: 0.5rem;
     
-    /* Custom Travel Theme Colors */
-    --travel-primary: 199 89% 48%;
-    --travel-secondary: 174 86% 44%;
-    --travel-accent: 18 95% 57%;
-    --travel-muted: 210 20% 96%;
-    --travel-dark: 215 25% 27%;
+    /* Updated Custom Travel Theme Colors (Darker) */
+    --travel-primary: 199 89% 38%;
+    --travel-secondary: 174 86% 34%;
+    --travel-accent: 18 95% 47%;
+    --travel-muted: 210 20% 86%;
+    --travel-dark: 215 25% 22%;
   }
  
   .dark {
@@ -84,7 +84,7 @@
 }
 
 .bg-travel-gradient {
-  @apply bg-gradient-to-r from-cyan-500 to-teal-400;
+  @apply bg-gradient-to-r from-cyan-600 to-teal-500;
 }
 
 /* Sidebar specific styles */
