@@ -1,6 +1,6 @@
 
 // Converted from TypeScript
-import React from "react";
+import React, { createContext, useContext, useState } from 'react';
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -132,7 +132,14 @@ function toast({ ...props }) {
   };
 }
 
-function useToast() {
+// Create a new ToastContext and ToastProvider
+const ToastContext = createContext({
+  toasts: [],
+  toast: () => {},
+  dismiss: () => {},
+});
+
+function ToastProvider({ children }) {
   const [state, setState] = React.useState(memoryState);
 
   React.useEffect(() => {
@@ -145,11 +152,25 @@ function useToast() {
     };
   }, [state]);
 
-  return {
-    ...state,
-    toast,
-    dismiss: (toastId) => dispatch({ type: "DISMISS_TOAST", toastId }),
-  };
+  return (
+    <ToastContext.Provider 
+      value={{ 
+        ...state, 
+        toast, 
+        dismiss: (toastId) => dispatch({ type: "DISMISS_TOAST", toastId }) 
+      }}
+    >
+      {children}
+    </ToastContext.Provider>
+  );
 }
 
-export { useToast, toast };
+function useToast() {
+  const context = useContext(ToastContext);
+  if (context === undefined) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
+}
+
+export { useToast, toast, ToastProvider };
