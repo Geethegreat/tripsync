@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Users, Camera, MapPin, Utensils } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTrip } from '@/contexts/TripContext';
 
 export const RoleAssignment = ({ trip }) => {
   const { user } = useAuth();
