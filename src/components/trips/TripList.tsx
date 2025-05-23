@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 import { useTrip } from '@/contexts/TripContext';
 import { Users, Map, Calendar, MapPin } from 'lucide-react';
 
-export const TripList = () => {
+interface TripListProps {
+  layout?: 'grid' | 'sidebar';
+}
+
+export const TripList = ({ layout = "grid" }: TripListProps) => {
   const { trips, selectTrip, currentTrip } = useTrip();
 
   if (!trips.length) {
@@ -19,6 +23,41 @@ export const TripList = () => {
         <p className="text-muted-foreground mb-4">
           Create a new trip or join one using an invite code
         </p>
+      </div>
+    );
+  }
+
+  if (layout === "sidebar") {
+    return (
+      <div className="space-y-2">
+        {trips.map((trip) => (
+          <div
+            key={trip.id}
+            className={`rounded-md p-2 cursor-pointer transition-all hover:bg-muted ${
+              currentTrip?.id === trip.id ? 'bg-travel-muted border-l-4 border-travel-primary' : ''
+            }`}
+            onClick={() => selectTrip(trip.id)}
+          >
+            <div className="flex justify-between items-start">
+              <div className="truncate font-medium">{trip.name}</div>
+              <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'} className="text-xs">
+                {trip.status === 'planning' ? 'Planning' : 
+                trip.status === 'voting' ? 'Voting' : 'Confirmed'}
+              </Badge>
+            </div>
+            <div className="text-xs text-muted-foreground mt-1 flex items-center">
+              <Users className="h-3 w-3 mr-1" /> 
+              {trip.members.length}
+              {trip.selectedDestination && (
+                <span className="ml-2 flex items-center">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  {trip.selectedDestination.name.substring(0, 15)}
+                  {trip.selectedDestination.name.length > 15 ? '...' : ''}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
