@@ -10,6 +10,7 @@ import { Plus } from 'lucide-react';
 
 export const CreateTripForm = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
   const { createTrip } = useTrip();
 
   console.log('CreateTripForm rendered');
@@ -27,9 +28,7 @@ export const CreateTripForm = () => {
     try {
       createTrip(name, description);
       e.currentTarget.reset();
-      // Close dialog by triggering a click on the close button
-      const closeButton = e.currentTarget.closest('[role="dialog"]')?.querySelector('[data-state="open"] button[aria-label="Close"]');
-      if (closeButton) closeButton.click();
+      setOpen(false);
     } catch (error) {
       console.error('Error creating trip:', error);
     } finally {
@@ -38,7 +37,7 @@ export const CreateTripForm = () => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-travel-primary hover:bg-travel-secondary">
           <Plus className="mr-2 h-4 w-4" /> Create Trip
@@ -71,6 +70,13 @@ export const CreateTripForm = () => {
             />
           </div>
           <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
             <Button
               type="submit"
               className="bg-travel-primary hover:bg-travel-secondary"
