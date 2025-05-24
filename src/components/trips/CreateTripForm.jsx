@@ -9,11 +9,10 @@ import { useTrip } from '@/contexts/TripContext';
 import { Plus } from 'lucide-react';
 
 export const CreateTripForm = () => {
-  const [open, setOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { createTrip } = useTrip();
 
-  console.log('CreateTripForm rendered, open state:', open);
+  console.log('CreateTripForm rendered');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,8 +26,10 @@ export const CreateTripForm = () => {
 
     try {
       createTrip(name, description);
-      setOpen(false);
       e.currentTarget.reset();
+      // Close dialog by triggering a click on the close button
+      const closeButton = e.currentTarget.closest('[role="dialog"]')?.querySelector('[data-state="open"] button[aria-label="Close"]');
+      if (closeButton) closeButton.click();
     } catch (error) {
       console.error('Error creating trip:', error);
     } finally {
@@ -36,21 +37,10 @@ export const CreateTripForm = () => {
     }
   };
 
-  const handleOpenChange = (newOpen) => {
-    console.log('Dialog open change:', newOpen);
-    setOpen(newOpen);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog>
       <DialogTrigger asChild>
-        <Button 
-          className="bg-travel-primary hover:bg-travel-secondary"
-          onClick={() => {
-            console.log('Create trip button clicked');
-            setOpen(true);
-          }}
-        >
+        <Button className="bg-travel-primary hover:bg-travel-secondary">
           <Plus className="mr-2 h-4 w-4" /> Create Trip
         </Button>
       </DialogTrigger>
@@ -81,13 +71,6 @@ export const CreateTripForm = () => {
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
             <Button
               type="submit"
               className="bg-travel-primary hover:bg-travel-secondary"

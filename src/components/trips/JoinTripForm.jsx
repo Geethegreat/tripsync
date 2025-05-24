@@ -8,12 +8,11 @@ import { useTrip } from '@/contexts/TripContext';
 import { UserPlus } from 'lucide-react';
 
 export const JoinTripForm = () => {
-  const [open, setOpen] = useState(false);
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { joinTrip } = useTrip();
 
-  console.log('JoinTripForm rendered, open state:', open);
+  console.log('JoinTripForm rendered');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,8 +23,10 @@ export const JoinTripForm = () => {
     try {
       const success = joinTrip(code);
       if (success) {
-        setOpen(false);
         setCode('');
+        // Close dialog by triggering a click on the close button
+        const closeButton = e.currentTarget.closest('[role="dialog"]')?.querySelector('[data-state="open"] button[aria-label="Close"]');
+        if (closeButton) closeButton.click();
       }
     } catch (error) {
       console.error('Error joining trip:', error);
@@ -34,21 +35,10 @@ export const JoinTripForm = () => {
     }
   };
 
-  const handleOpenChange = (newOpen) => {
-    console.log('Join dialog open change:', newOpen);
-    setOpen(newOpen);
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog>
       <DialogTrigger asChild>
-        <Button 
-          variant="outline"
-          onClick={() => {
-            console.log('Join trip button clicked');
-            setOpen(true);
-          }}
-        >
+        <Button variant="outline">
           <UserPlus className="mr-2 h-4 w-4" /> Join Trip
         </Button>
       </DialogTrigger>
@@ -73,13 +63,6 @@ export const JoinTripForm = () => {
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
             <Button
               type="submit"
               className="bg-travel-primary hover:bg-travel-secondary"
