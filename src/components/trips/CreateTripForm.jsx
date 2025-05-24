@@ -13,6 +13,8 @@ export const CreateTripForm = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { createTrip } = useTrip();
 
+  console.log('CreateTripForm rendered, open state:', open);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -20,6 +22,8 @@ export const CreateTripForm = () => {
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name');
     const description = formData.get('description');
+
+    console.log('Form submitted with:', { name, description });
 
     try {
       createTrip(name, description);
@@ -32,14 +36,25 @@ export const CreateTripForm = () => {
     }
   };
 
+  const handleOpenChange = (newOpen) => {
+    console.log('Dialog open change:', newOpen);
+    setOpen(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-travel-primary hover:bg-travel-secondary">
+        <Button 
+          className="bg-travel-primary hover:bg-travel-secondary"
+          onClick={() => {
+            console.log('Create trip button clicked');
+            setOpen(true);
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" /> Create Trip
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create a new trip</DialogTitle>
           <DialogDescription>

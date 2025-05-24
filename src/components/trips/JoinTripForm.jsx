@@ -13,9 +13,13 @@ export const JoinTripForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { joinTrip } = useTrip();
 
+  console.log('JoinTripForm rendered, open state:', open);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    console.log('Join trip form submitted with code:', code);
 
     try {
       const success = joinTrip(code);
@@ -30,14 +34,25 @@ export const JoinTripForm = () => {
     }
   };
 
+  const handleOpenChange = (newOpen) => {
+    console.log('Join dialog open change:', newOpen);
+    setOpen(newOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button 
+          variant="outline"
+          onClick={() => {
+            console.log('Join trip button clicked');
+            setOpen(true);
+          }}
+        >
           <UserPlus className="mr-2 h-4 w-4" /> Join Trip
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Join an existing trip</DialogTitle>
           <DialogDescription>
