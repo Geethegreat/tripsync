@@ -10,7 +10,6 @@ import { UserPlus } from 'lucide-react';
 export const JoinTripForm = () => {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [open, setOpen] = useState(false);
   const { joinTrip } = useTrip();
 
   console.log('JoinTripForm rendered');
@@ -25,7 +24,6 @@ export const JoinTripForm = () => {
       const success = joinTrip(code);
       if (success) {
         setCode('');
-        setOpen(false);
       }
     } catch (error) {
       console.error('Error joining trip:', error);
@@ -35,7 +33,7 @@ export const JoinTripForm = () => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">
           <UserPlus className="mr-2 h-4 w-4" /> Join Trip
@@ -62,13 +60,6 @@ export const JoinTripForm = () => {
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
             <Button
               type="submit"
               className="bg-travel-primary hover:bg-travel-secondary"
