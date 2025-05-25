@@ -5,11 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTrip } from '@/contexts/TripContext';
-import { Users, Calendar, Map, Utensils, Flag } from 'lucide-react';
+import { Users, Calendar, Map, Utensils, Flag, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PollingSection } from './PollingSection';
 import { PackingList } from './PackingList';
 import { RoleAssignment } from './RoleAssignment';
+import { Itinerary } from './Itinerary';
 
 export const TripDetails = () => {
   const { currentTrip } = useTrip();
@@ -102,7 +103,7 @@ export const TripDetails = () => {
       </Card>
       
       <Tabs defaultValue="planning" className="w-full">
-        <TabsList className="grid grid-cols-4 mb-4">
+        <TabsList className="grid grid-cols-5 mb-4">
           <TabsTrigger value="planning">
             <Calendar className="h-4 w-4 mr-2" />
             Planning
@@ -114,6 +115,10 @@ export const TripDetails = () => {
           <TabsTrigger value="roles">
             <Users className="h-4 w-4 mr-2" />
             Roles
+          </TabsTrigger>
+          <TabsTrigger value="itinerary">
+            <MapPin className="h-4 w-4 mr-2" />
+            Itinerary
           </TabsTrigger>
           <TabsTrigger value="finalize">
             <Utensils className="h-4 w-4 mr-2" />
@@ -131,6 +136,10 @@ export const TripDetails = () => {
         
         <TabsContent value="roles" className="space-y-4">
           <RoleAssignment trip={currentTrip} />
+        </TabsContent>
+        
+        <TabsContent value="itinerary" className="space-y-4">
+          <Itinerary trip={currentTrip} />
         </TabsContent>
         
         <TabsContent value="finalize" className="space-y-4">

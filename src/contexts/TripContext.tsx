@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -73,6 +72,7 @@ interface TripContextType {
   joinTrip: (inviteCode: string) => boolean;
   selectTrip: (tripId: string) => void;
   updateTrip: (trip: Trip) => void;
+  deleteTrip: (tripId: string) => void;
   addPoll: (tripId: string, poll: Poll) => void;
   voteOnOption: (tripId: string, pollId: string, optionId: string, userId: string) => void;
   assignRole: (tripId: string, userId: string, role: string) => void;
@@ -213,6 +213,24 @@ export const TripProvider = ({ children }: { children: ReactNode }) => {
     setCurrentTrip(updatedTrip);
   };
 
+  const deleteTrip = (tripId: string) => {
+    setTrips(prevTrips => {
+      const updatedTrips = prevTrips.filter(trip => trip.id !== tripId);
+      
+      // If the deleted trip was the current trip, clear current trip
+      if (currentTrip?.id === tripId) {
+        setCurrentTrip(null);
+      }
+      
+      return updatedTrips;
+    });
+    
+    toast({
+      title: "Trip deleted",
+      description: "The trip has been successfully deleted",
+    });
+  };
+
   const addPoll = (tripId: string, poll: Poll) => {
     // Implementation would depend on your poll structure
     toast({
@@ -333,6 +351,7 @@ export const TripProvider = ({ children }: { children: ReactNode }) => {
       joinTrip,
       selectTrip,
       updateTrip,
+      deleteTrip,
       addPoll,
       voteOnOption,
       assignRole,
