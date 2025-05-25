@@ -94,7 +94,7 @@ export const TripList = ({ layout = "grid" }: TripListProps) => {
           <div className="h-2 bg-travel-gradient" />
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start">
-              <CardTitle className="flex-1 pr-2">{trip.name || 'Untitled Trip'}</CardTitle>
+              <CardTitle className="flex-1 pr-2 text-lg leading-tight">{trip.name || 'Untitled Trip'}</CardTitle>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'}>
                   {trip.status === 'planning' ? 'Planning' : 
