@@ -103,7 +103,7 @@ export const TripList = ({ layout = "grid" }: TripListProps) => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 z-10"
                   onClick={(e) => handleDeleteTrip(e, trip.id)}
                 >
                   <Trash2 className="h-4 w-4" />

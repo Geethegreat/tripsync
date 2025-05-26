@@ -103,26 +103,26 @@ export const TripDetails = () => {
       </Card>
       
       <Tabs defaultValue="planning" className="w-full">
-        <TabsList className="grid grid-cols-5 mb-4">
-          <TabsTrigger value="planning">
-            <Calendar className="h-4 w-4 mr-2" />
-            Planning
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="planning" className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Planning</span>
           </TabsTrigger>
-          <TabsTrigger value="packing">
-            <Flag className="h-4 w-4 mr-2" />
-            Packing
+          <TabsTrigger value="packing" className="flex items-center gap-2">
+            <Flag className="h-4 w-4" />
+            <span className="hidden sm:inline">Packing</span>
           </TabsTrigger>
-          <TabsTrigger value="roles">
-            <Users className="h-4 w-4 mr-2" />
-            Roles
+          <TabsTrigger value="roles" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Roles</span>
           </TabsTrigger>
-          <TabsTrigger value="itinerary">
-            <MapPin className="h-4 w-4 mr-2" />
-            Itinerary
+          <TabsTrigger value="itinerary" className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            <span className="hidden sm:inline">Itinerary</span>
           </TabsTrigger>
-          <TabsTrigger value="finalize">
-            <Utensils className="h-4 w-4 mr-2" />
-            Finalize
+          <TabsTrigger value="finalize" className="flex items-center gap-2">
+            <Utensils className="h-4 w-4" />
+            <span className="hidden sm:inline">Finalize</span>
           </TabsTrigger>
         </TabsList>
         
