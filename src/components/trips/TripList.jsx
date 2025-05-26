@@ -4,10 +4,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useTrip } from '@/contexts/TripContext';
-import { Users, Map, Calendar, MapPin } from 'lucide-react';
+import { Users, Map, Calendar, MapPin, Trash2 } from 'lucide-react';
 
 export const TripList = ({ layout = "grid" }) => {
-  const { trips, selectTrip, currentTrip } = useTrip();
+  const { trips, selectTrip, currentTrip, deleteTrip } = useTrip();
+
+  const handleDeleteTrip = (e, tripId) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this trip?')) {
+      deleteTrip(tripId);
+    }
+  };
 
   if (!trips.length) {
     return (
@@ -35,11 +42,23 @@ export const TripList = ({ layout = "grid" }) => {
             onClick={() => selectTrip(trip.id)}
           >
             <div className="flex justify-between items-start">
-              <div className="truncate font-medium">{trip.name}</div>
-              <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'} className="text-xs">
-                {trip.status === 'planning' ? 'Planning' : 
-                trip.status === 'voting' ? 'Voting' : 'Confirmed'}
-              </Badge>
+              <div className="truncate font-medium flex-1 pr-2">
+                {trip.name || 'Untitled Trip'}
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'} className="text-xs">
+                  {trip.status === 'planning' ? 'Planning' : 
+                  trip.status === 'voting' ? 'Voting' : 'Confirmed'}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                  onClick={(e) => handleDeleteTrip(e, trip.id)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
             <div className="text-xs text-muted-foreground mt-1 flex items-center">
               <Users className="h-3 w-3 mr-1" /> 
@@ -71,11 +90,23 @@ export const TripList = ({ layout = "grid" }) => {
           <div className="h-2 bg-travel-gradient" />
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start">
-              <CardTitle>{trip.name}</CardTitle>
-              <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'}>
-                {trip.status === 'planning' ? 'Planning' : 
-                 trip.status === 'voting' ? 'Voting' : 'Confirmed'}
-              </Badge>
+              <CardTitle className="flex-1 pr-2 text-lg leading-tight">
+                {trip.name || 'Untitled Trip'}
+              </CardTitle>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Badge variant={trip.status === 'confirmed' ? 'default' : 'outline'}>
+                  {trip.status === 'planning' ? 'Planning' : 
+                   trip.status === 'voting' ? 'Voting' : 'Confirmed'}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 z-10"
+                  onClick={(e) => handleDeleteTrip(e, trip.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
             <CardDescription className="line-clamp-2">
               {trip.description || 'No description provided'}

@@ -161,6 +161,25 @@ export const TripProvider = ({ children }) => {
     }
   };
 
+  // Delete a trip
+  const deleteTrip = (tripId) => {
+    const updatedTrips = trips.filter(trip => trip.id !== tripId);
+    setTrips(updatedTrips);
+    
+    // If the deleted trip was the current trip, clear current trip
+    if (currentTrip?.id === tripId) {
+      setCurrentTrip(null);
+      localStorage.removeItem('tripsync_current_trip');
+    }
+    
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+    
+    toast({
+      title: "Trip deleted",
+      description: "The trip has been successfully deleted",
+    });
+  };
+
   // Add packing item
   const addPackingItem = (tripId, item) => {
     const trip = trips.find(t => t.id === tripId);
@@ -357,6 +376,7 @@ export const TripProvider = ({ children }) => {
       createTrip,
       joinTrip,
       selectTrip,
+      deleteTrip,
       addPackingItem,
       togglePinItem,
       assignRole
