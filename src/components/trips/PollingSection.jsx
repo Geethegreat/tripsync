@@ -31,6 +31,12 @@ export const PollingSection = ({ trip }) => {
     return option ? option.votes.length : 0;
   };
 
+  // Handle transport button click - both select and vote
+  const handleTransportClick = (transportName) => {
+    setTransport(transportName);
+    updateTransport(trip.id, transportName);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -168,39 +174,25 @@ export const PollingSection = ({ trip }) => {
             {transports.map((item) => {
               const voteCount = getTransportVoteCount(item.name);
               return (
-                <div key={item.name} className="flex flex-col items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className={`h-24 flex flex-col items-center justify-center gap-2 ${
-                      transport === item.name
-                        ? "bg-travel-primary/10 border-travel-primary"
-                        : ""
-                    }`}
-                    onClick={() => setTransport(item.name)}
-                  >
-                    <item.icon className="h-8 w-8" />
-                    <span>{item.name}</span>
-                  </Button>
-                  {voteCount > 0 && (
-                    <Button size="sm" variant="outline" className="w-full">
-                      Vote ({voteCount})
-                    </Button>
-                  )}
-                </div>
+                <Button
+                  key={item.name}
+                  variant="outline"
+                  className={`h-24 flex flex-col items-center justify-center gap-1 ${
+                    transport === item.name
+                      ? "bg-travel-primary/10 border-travel-primary"
+                      : ""
+                  }`}
+                  onClick={() => handleTransportClick(item.name)}
+                >
+                  <item.icon className="h-6 w-6" />
+                  <span className="text-sm">{item.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    Vote ({voteCount})
+                  </span>
+                </Button>
               );
             })}
           </div>
-          
-          <Button
-            className="w-full bg-travel-primary hover:bg-travel-secondary"
-            disabled={!transport}
-             onClick={() => {
-              updateTransport(trip.id, transport);
-              setTransport(null); // Optional: reset selected transport
-            }}
-          >
-            Propose Transportation
-          </Button>
         </CardContent>
       </Card>
     </div>
