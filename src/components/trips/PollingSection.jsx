@@ -157,7 +157,7 @@ export const PollingSection = ({ trip }) => {
             Choose how you want to travel
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
             {transports.map((item) => (
               <Button
@@ -177,7 +177,7 @@ export const PollingSection = ({ trip }) => {
           </div>
           
           <Button
-            className="w-full mt-4 bg-travel-primary hover:bg-travel-secondary"
+            className="w-full bg-travel-primary hover:bg-travel-secondary"
             disabled={!transport}
              onClick={() => {
               updateTransport(trip.id, transport);
@@ -186,6 +186,25 @@ export const PollingSection = ({ trip }) => {
           >
             Propose Transportation
           </Button>
+
+          {/* Display proposed transportation options with vote counts */}
+          <div className="border rounded-md p-4 mt-4">
+            <h4 className="font-medium mb-2">Proposed Transportation</h4>
+            {trip.transportOptions && trip.transportOptions.length > 0 ? (
+              <ul className="space-y-2">
+                {trip.transportOptions.map(option => (
+                  <li key={option.id} className="flex items-center justify-between">
+                    <span>{option.value}</span>
+                    <Button size="sm" variant="outline">
+                      Vote ({option.votes.length})
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted-foreground text-sm">No transportation proposed yet</p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
