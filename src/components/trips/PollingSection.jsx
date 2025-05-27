@@ -25,6 +25,12 @@ export const PollingSection = ({ trip }) => {
     { icon: Bike, name: 'Bike' },
   ];
 
+  // Helper function to get vote count for a transport option
+  const getTransportVoteCount = (transportName) => {
+    const option = trip.transportOptions?.find(opt => opt.value === transportName);
+    return option ? option.votes.length : 0;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -159,21 +165,30 @@ export const PollingSection = ({ trip }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-            {transports.map((item) => (
-              <Button
-                key={item.name}
-                variant="outline"
-                className={`h-24 flex flex-col items-center justify-center gap-2 ${
-                  transport === item.name
-                    ? "bg-travel-primary/10 border-travel-primary"
-                    : ""
-                }`}
-                onClick={() => setTransport(item.name)}
-              >
-                <item.icon className="h-8 w-8" />
-                <span>{item.name}</span>
-              </Button>
-            ))}
+            {transports.map((item) => {
+              const voteCount = getTransportVoteCount(item.name);
+              return (
+                <div key={item.name} className="flex flex-col items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className={`h-24 flex flex-col items-center justify-center gap-2 ${
+                      transport === item.name
+                        ? "bg-travel-primary/10 border-travel-primary"
+                        : ""
+                    }`}
+                    onClick={() => setTransport(item.name)}
+                  >
+                    <item.icon className="h-8 w-8" />
+                    <span>{item.name}</span>
+                  </Button>
+                  {voteCount > 0 && (
+                    <Button size="sm" variant="outline" className="w-full">
+                      Vote ({voteCount})
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
           </div>
           
           <Button
@@ -186,25 +201,6 @@ export const PollingSection = ({ trip }) => {
           >
             Propose Transportation
           </Button>
-
-          {/* Display proposed transportation options with vote counts */}
-          <div className="border rounded-md p-4 mt-4">
-            <h4 className="font-medium mb-2">Proposed Transportation</h4>
-            {trip.transportOptions && trip.transportOptions.length > 0 ? (
-              <ul className="space-y-2">
-                {trip.transportOptions.map(option => (
-                  <li key={option.id} className="flex items-center justify-between">
-                    <span>{option.value}</span>
-                    <Button size="sm" variant="outline">
-                      Vote ({option.votes.length})
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted-foreground text-sm">No transportation proposed yet</p>
-            )}
-          </div>
         </CardContent>
       </Card>
     </div>
