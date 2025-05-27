@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const TripContext = createContext();
 
@@ -12,12 +13,17 @@ export const useTrip = () => {
   return context;
 };
 
+
+
+
 // Mock trip data for demo purposes
 // In a real app, this would use an actual backend service or API
 export const TripProvider = ({ children }) => {
   const [trips, setTrips] = useState([]);
   const [currentTrip, setCurrentTrip] = useState(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+
 
   useEffect(() => {
     // Load trips from localStorage on mount
@@ -41,6 +47,120 @@ export const TripProvider = ({ children }) => {
     }
   }, []);
 
+
+   const updateSelectedDate = (tripId, selectedDate) => {
+     console.log("Selected date to save:",tripId,  selectedDate);
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+
+     const newDateOption = {
+    id: Date.now().toString(),
+    value: selectedDate, 
+    votes: [user.id]     
+  };
+    const updatedTrip = {
+    ...trip,
+    dateOptions: [...trip.dateOptions, newDateOption]
+    };
+    const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+
+    setTrips(updatedTrips);
+    if (currentTrip && currentTrip.id === tripId) {
+      setCurrentTrip(updatedTrip);
+    }
+
+    localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+    
+    fetch('http://localhost:6969/update-trip', {
+    method: 'POST', // or PUT/PATCH depending on your backend
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedTrip),
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log('Trip updated on server:', data);
+  })
+  .catch(err => {
+    console.error('Failed to update trip on server:', err);
+  });
+  };
+
+  const updateDestination = (tripId, destination) => {
+  const trip = trips.find(t => t.id === tripId);
+  if (!trip) return;
+
+  const newDestinationOption = {
+    id: Date.now().toString(),
+    value: destination,
+    votes: [user.id]  // assuming user is auto-voting for what they propose
+  };
+
+  const updatedTrip = {
+    ...trip,
+    destinationOptions: [...trip.destinationOptions, newDestinationOption]
+  };
+
+  const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+  setTrips(updatedTrips);
+  if (currentTrip && currentTrip.id === tripId) {
+    setCurrentTrip(updatedTrip);
+  }
+
+  localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+
+  fetch('http://localhost:6969/update-trip', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedTrip),
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log('Trip updated with destination:', data);
+    })
+    .catch(err => {
+      console.error('Failed to update trip with destination:', err);
+    });
+};
+
+const updateTransport = (tripId, transport) => {
+  const trip = trips.find(t => t.id === tripId);
+  if (!trip) return;
+
+  const newTransportOption = {
+    id: Date.now().toString(),
+    value: transport,
+    votes: [user.id]  // auto-voting for proposed option
+  };
+
+  const updatedTrip = {
+    ...trip,
+    transportOptions: [...trip.transportOptions, newTransportOption]
+  };
+
+  const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+  setTrips(updatedTrips);
+  if (currentTrip && currentTrip.id === tripId) {
+    setCurrentTrip(updatedTrip);
+  }
+
+  localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
+
+  fetch('http://localhost:6969/update-trip', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedTrip),
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log('Trip updated with transport:', data);
+    })
+    .catch(err => {
+      console.error('Failed to update trip with transport:', err);
+    });
+};
+
+
+
   // Generate random invite code (for demo)
   const generateInviteCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -53,12 +173,15 @@ export const TripProvider = ({ children }) => {
 
   // Create a new trip
   const createTrip = (name, description) => {
-    const user = JSON.parse(localStorage.getItem('tripsync_user') || '{}');
-    
+    //const user = JSON.parse(localStorage.getItem('tripsync_user') || '{}');
+      if (!user?.id) return;
+
     const newTrip = {
       id: `trip-${Date.now()}`,
       name,
       description,
+      userId: user.id,
+      username: user.username,
       status: 'planning',
       createdAt: new Date().toISOString(),
       inviteCode: generateInviteCode(),
@@ -83,6 +206,16 @@ export const TripProvider = ({ children }) => {
     
     localStorage.setItem('tripsync_trips', JSON.stringify(updatedTrips));
     localStorage.setItem('tripsync_current_trip', JSON.stringify(newTrip.id));
+
+      fetch('http://localhost:6969/create-trip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTrip),
+    })
+    .then(res => res.json())
+    .then(data => console.log('Trip saved:', data))
+    .catch(err => console.error('Failed to save trip:', err));
+
     
     toast({
       title: "Trip created!",
@@ -324,47 +457,6 @@ export const TripProvider = ({ children }) => {
         ],
         selectedDestination: null,
         selectedDate: null
-      },
-      {
-        id: 'trip-2',
-        name: 'Mountain Hiking Trip',
-        description: 'Weekend hiking adventure',
-        status: 'confirmed',
-        createdAt: '2025-02-20T15:30:00Z',
-        inviteCode: 'MOUNT45',
-        dateOptions: [],
-        destinationOptions: [],
-        transportOptions: [],
-        members: [
-          {
-            id: user.id,
-            name: user.name,
-            avatar: user.avatar,
-            isAdmin: false,
-            role: 'navigator'
-          },
-          {
-            id: 'user-3',
-            name: 'Sam Wilson',
-            avatar: null,
-            isAdmin: true,
-            role: 'organizer'
-          }
-        ],
-        packingList: [
-          { 
-            id: 'pack-4', 
-            name: 'Hiking boots', 
-            category: 'essentials', 
-            addedBy: 'user-3', 
-            isPinned: true, 
-            isChecked: false,
-            isEssential: true,
-            createdAt: '2025-02-21T09:00:00Z'
-          }
-        ],
-        selectedDestination: { name: 'Yosemite National Park' },
-        selectedDate: '2025-06-10T00:00:00Z'
       }
     ];
   };
@@ -379,7 +471,10 @@ export const TripProvider = ({ children }) => {
       deleteTrip,
       addPackingItem,
       togglePinItem,
-      assignRole
+      assignRole,
+      updateSelectedDate,
+      updateDestination,
+        
     }}>
       {children}
     </TripContext.Provider>

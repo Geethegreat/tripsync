@@ -32,6 +32,12 @@ export const CreateTripForm = () => {
     } finally {
       setIsSubmitting(false);
     }
+
+      // fetch('http://localhost:6969/create-trip', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ name, description })
+      // });
   };
 
   return (

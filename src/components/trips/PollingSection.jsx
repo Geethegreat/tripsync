@@ -8,11 +8,15 @@ import { Calendar as CalendarIcon, MapPin, Bike, Car, Plane, Train } from 'lucid
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
+import { useTrip } from '@/contexts/TripContext';
 
 export const PollingSection = ({ trip }) => {
   const [date, setDate] = useState();
   const [destination, setDestination] = useState('');
   const [transport, setTransport] = useState(null);
+  const { updateSelectedDate } = useTrip();
+  const { updateDestination } = useTrip();
+  const { updateTransport } = useTrip();
 
   const transports = [
     { icon: Car, name: 'Car' },
@@ -60,6 +64,11 @@ export const PollingSection = ({ trip }) => {
               <Button
                 className="w-full bg-travel-primary hover:bg-travel-secondary"
                 disabled={!date}
+                onClick={() => {
+                  if (!date) return;
+                  updateSelectedDate(trip.id, date.toISOString());
+                  setDate(null); // Optionally clear the input after submit
+                }}
               >
                 Propose Date
               </Button>
@@ -108,6 +117,10 @@ export const PollingSection = ({ trip }) => {
               <Button
                 className="w-full bg-travel-primary hover:bg-travel-secondary"
                 disabled={!destination.trim()}
+                 onClick={() => {
+                    updateDestination(trip.id, destination.trim());
+                    setDestination(''); // Clear input
+                  }}
               >
                 Propose Destination
               </Button>
@@ -166,6 +179,10 @@ export const PollingSection = ({ trip }) => {
           <Button
             className="w-full mt-4 bg-travel-primary hover:bg-travel-secondary"
             disabled={!transport}
+             onClick={() => {
+              updateTransport(trip.id, transport);
+              setTransport(null); // Optional: reset selected transport
+            }}
           >
             Propose Transportation
           </Button>
